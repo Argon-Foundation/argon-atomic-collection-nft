@@ -42,10 +42,6 @@ contract ArgonAtomicCollection is
         _;
     }
 
-    function sendMint(uint256 id) public {
-        _mint(msg.sender, id);
-    }
-
     function changePause(bool _paused) public onlyOwner {
         paused = _paused;
         emit Paused(_paused);
