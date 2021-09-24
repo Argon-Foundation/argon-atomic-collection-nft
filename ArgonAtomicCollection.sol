@@ -15,14 +15,22 @@ contract ArgonAtomicCollection is
     Ownable,
     ReentrancyGuard
 {
+
     using Counters for Counters.Counter;
     using SafeMath for uint256;
     using Strings for uint256;
     Counters.Counter private tokenCount;
     Counters.Counter private compoundCount;
+    
+       struct userNFTData {
+        address owner;
+        uint256[] tokenIds;
+    }
+    
     uint256 public price = 2 ether;
     uint256[] public remaining = [1];
     string public baseURI;
+    mapping(address => userNFTData) public getUserNft;
     bool public paused;
     address payable public feeAddress;
 
@@ -100,6 +108,7 @@ contract ArgonAtomicCollection is
     function mint() external payable nonReentrant mustNotPaused {
         require(remaining.length > 0, "there is no nft");
         require(msg.value >= price);
+        userNFTData storage user = getUserNft[msg.sender];
         uint256 newItemIndex = SafeMath.mod(
             generateRandom(),
             remaining.length,
@@ -114,7 +123,7 @@ contract ArgonAtomicCollection is
                 abi.encodePacked(baseURI, Strings.toString(newItemId), ".json")
             )
         );
-
+        user.tokenIds.push(newItemId);
         remaining[newItemIndex] = remaining[remaining.length - 1];
         remaining.pop();
         tokenCount.increment();
